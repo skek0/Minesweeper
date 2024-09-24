@@ -5,34 +5,46 @@
 #include <conio.h>
 #include "Doublebuffering.h"
 
-#define UP 72
-#define LEFT 75
-#define RIGHT 77
-#define DOWN 80
+#define UP 119
+#define LEFT 97
+#define RIGHT 100
+#define DOWN 115
+
+#define SELECT 106
+#define MARK 107
 
 int maxX, maxY;
 int* board;
 
+int isFirstHit = 0;
+
 void Position(int x, int y);
 void BoardMaker(int lengthX, int lengthY);
 int CalculateIndex(int x, int y);
+void LayMines(int amount);
+void Select(int posX, int posY);
+int CheckNearby(int posX, int posY);
 
 int main()
 {
 	// 가로 세로 입력받고 보드 생성
 	int sizeX, sizeY;
+	int mineAmount;
 	printf("size : ");
-	scanf_s("%d", &sizeX);
-	scanf_s("%d", &sizeY);
+	scanf_s("%d %d", &sizeX, &sizeY);
+	printf("\nmines : ");
+	scanf_s("%d", &mineAmount);
+
 	system("cls");
 	maxX = sizeX; maxY = sizeY;
-	BoardMaker(sizeX, sizeY);
-
+	BoardMaker(sizeX+2, sizeY+2);
+	LayMines(mineAmount);
 	// 키 입력
 	char key = 0;
 
 	int posX = 1, posY = 1;
 
+	Position(posX, posY);
 	while (1)
 	{
 		if (_kbhit())
@@ -47,7 +59,7 @@ int main()
 			switch (key)
 			{
 			case UP:
-				if (posY >= 1)
+				if (posY > 1)
 				{
 					posY -= 1;
 				}
@@ -61,19 +73,26 @@ int main()
 				break;
 
 			case RIGHT:
-				if (posX <= 18)
+				if (posX <= maxX*2 - 2)
 				{
 					posX += 2;
 				}
 				break;
 
 			case DOWN:
-				if (posY <= 9)
+				if (posY <= maxY-1)
 				{
 					posY += 1;
 				}
 				break;
 
+			case SELECT:
+				Select((posX+1)/2, posY);
+				break;
+
+			case MARK:
+
+				break;
 			default:
 				printf("Exception\n");
 				break;
@@ -85,8 +104,12 @@ int main()
 		Position(posX, posY);
 		printf("★");
 	}
+
+	free(board);
+
 	return 0;
 }
+// 0 : 가장자리		1 : 보드		2 : 폭탄
 
 void Position(int x, int y)
 {
@@ -97,8 +120,16 @@ void Position(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), position);
 }
 
+int CalculateIndex(int x, int y)
+{
+	int result = (maxX+2) * y + x;
+
+	return result;
+}
 void BoardMaker(int lengthX, int lengthY)
 {
+	//이동 범위는 1 ~ length-2
+
 	board = malloc(sizeof(int) * lengthX * lengthY);
 
 	if (board != NULL)
@@ -109,11 +140,11 @@ void BoardMaker(int lengthX, int lengthY)
 			{
 				if (i * j == 0 || j == lengthY - 1 || i == lengthX - 1)
 				{
-					board[CalculateIndex(i, j)] = 0;
+					board[CalculateIndex(i, j)] = 0;	// 가장자리
 				}
 				else
 				{
-					board[CalculateIndex(i, j)] = 1;
+					board[CalculateIndex(i, j)] = 1;	// 보드
 				}
 			}
 		}
@@ -122,25 +153,73 @@ void BoardMaker(int lengthX, int lengthY)
 		{
 			for (int i = 0; i < lengthX; i++)
 			{
-				if (board[CalculateIndex(i, j)] == 1)
+				if (board[CalculateIndex(i, j)] == 0)
 				{
-					printf("□ ");
+					printf("■ ");
 				}
 				else
 				{
-					printf("■ ");
+					printf("□ ");
 				}
 			}
 			printf("\n");
 		}
 	}
 }
-int CalculateIndex(int x, int y)
+void LayMines(int amount)
 {
-	int result = maxX * y + x;
+	srand((unsigned int)time(NULL));
 
-	return result;
+	for (int i = 0; i < amount; i++)
+	{
+		int num = rand() % (maxX * maxY);
+		while (board[num] == 0 || board[num] == 2)
+		{
+			num = rand() % (maxX * maxY);
+		}
+		board[num] = 2;
+	}
+	for (int j = 0; j < maxY+2; j++)
+	{
+		for (int i = 0; i < maxX+2; i++)
+		{
+			printf("%d ", board[CalculateIndex(i, j)]);
+		}
+		printf("\n");
+	}
 }
+
+void Select(int posX, int posY)
+{
+	switch (board[CalculateIndex(posX, posY)])
+	{
+	case 1:
+		printf("%d", CheckNearby(posX, posY));
+		break;
+	case 2:
+		printf("gameOver");
+		break;
+	}
+}
+
+// 고쳐야댐
+int CheckNearby(int posX, int posY)
+{
+	int count = 0;
+	for (int j = -1; j <= 1; j++)
+	{
+		for (int i = - 1; i <= 1; i++)
+		{
+			if (board[CalculateIndex(posX + i, posY + j)] == 2);
+			{
+				count++;
+			}
+		}
+	}
+	return count;
+}
+
+
 /*
 	1. 시작과 끝
 	보드 크기, 폭탄 수 설정
