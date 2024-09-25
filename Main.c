@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <conio.h>
 #include "Doublebuffering.h"
-
+// 싹다 마크로 처리하면 클리어됨
 #define UP 119
 #define LEFT 97
 #define RIGHT 100
@@ -24,6 +24,9 @@ int CalculateIndex(int x, int y);
 void LayMines(int amount);
 void Select(int posX, int posY);
 int CheckNearby(int posX, int posY);
+void RenderBoard();
+int CheckCondition(int amount);
+void Mark(int posX, int posY);
 
 int main()
 {
@@ -45,6 +48,7 @@ int main()
 	int posX = 1, posY = 1;
 
 	Position(posX, posY);
+
 	while (1)
 	{
 		if (_kbhit())
@@ -91,15 +95,20 @@ int main()
 				break;
 
 			case MARK:
-
+				Mark((posX+1)/2, posY);
 				break;
+
 			default:
-				printf("Exception\n");
 				break;
 			}
 
-			//system("cls");
-
+			system("cls");
+			if (CheckCondition(mineAmount) == 1)
+			{
+				printf("cleared");
+				break;
+			}
+			RenderBoard();
 		}
 		Position(posX, posY);
 		printf("★");
@@ -140,11 +149,11 @@ void BoardMaker(int lengthX, int lengthY)
 			{
 				if (i * j == 0 || j == lengthY - 1 || i == lengthX - 1)
 				{
-					board[CalculateIndex(i, j)] = 0;	// 가장자리
+					board[CalculateIndex(i, j)] = 10;	// 가장자리
 				}
 				else
 				{
-					board[CalculateIndex(i, j)] = 1;	// 보드
+					board[CalculateIndex(i, j)] = 11;	// 보드
 				}
 			}
 		}
@@ -153,7 +162,7 @@ void BoardMaker(int lengthX, int lengthY)
 		{
 			for (int i = 0; i < lengthX; i++)
 			{
-				if (board[CalculateIndex(i, j)] == 0)
+				if (board[CalculateIndex(i, j)] == 10)
 				{
 					printf("■ ");
 				}
@@ -172,37 +181,33 @@ void LayMines(int amount)
 
 	for (int i = 0; i < amount; i++)
 	{
-		int num = rand() % (maxX * maxY);
-		while (board[num] == 0 || board[num] == 2)
+		int num = rand() % (maxX+2 * maxY+2);
+
+		while (board[num] != 11)
 		{
-			num = rand() % (maxX * maxY);
+			num = rand() % (maxX+2 * maxY+2);
 		}
-		board[num] = 2;
-	}
-	for (int j = 0; j < maxY+2; j++)
-	{
-		for (int i = 0; i < maxX+2; i++)
-		{
-			printf("%d ", board[CalculateIndex(i, j)]);
-		}
-		printf("\n");
+		board[num] = 12;
 	}
 }
 
 void Select(int posX, int posY)
 {
+	int nearBombs;
 	switch (board[CalculateIndex(posX, posY)])
 	{
-	case 1:
-		printf("%d", CheckNearby(posX, posY));
+	case 11:
+		nearBombs = CheckNearby(posX, posY);
+		printf("%d", nearBombs);
+		board[CalculateIndex(posX, posY)] = nearBombs;
 		break;
-	case 2:
+	case 12:
+		system("cls");
 		printf("gameOver");
 		break;
 	}
 }
 
-// 고쳐야댐
 int CheckNearby(int posX, int posY)
 {
 	int count = 0;
@@ -210,13 +215,107 @@ int CheckNearby(int posX, int posY)
 	{
 		for (int i = - 1; i <= 1; i++)
 		{
-			if (board[CalculateIndex(posX + i, posY + j)] == 2);
+			if (board[CalculateIndex(posX + i, posY + j)] == 12)
 			{
 				count++;
 			}
 		}
 	}
 	return count;
+}
+
+void RenderBoard()
+{
+	Position(0, 0);
+	if (board != NULL)
+	{
+		for (int j = 0; j < maxY+2; j++)
+		{
+			for (int i = 0; i < maxX+2; i++)
+			{
+				int value = board[CalculateIndex(i, j)];
+				switch (value)
+				{
+				case 10:
+					printf("■ ");
+					break;
+				case 11:
+				case 12:
+					printf("□ ");
+					break;
+				case 13:
+				case 14:
+					printf("▣ ");
+					break;
+				case 15:
+				case 16:
+					printf("? ");
+					break;
+				default:
+					printf("%d ", value);
+					break;
+				}/*
+				if (value == 10)
+				{
+					printf("■ ");
+				}
+				else if(value == 11 || value == 12)
+				{
+					printf("□ ");
+				}
+				else
+				{
+					printf("%d ", value);
+				}*/
+			}
+			printf("\n");
+		}
+	}
+}
+
+int CheckCondition(int amount)
+{
+	int flag = 0;
+	for (int j = 0; j < maxY+2; j++)
+	{
+		for (int i = 0; i < maxX+2; i++)
+		{
+			if (board[CalculateIndex(i, j)] == 11)
+			{
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+void Mark(int posX, int posY)
+{
+	switch (board[CalculateIndex(posX, posY)])
+	{
+	case 11:
+		board[CalculateIndex(posX, posY)] = 13;
+		break;
+	case 12:
+		board[CalculateIndex(posX, posY)] = 14;
+		break;
+	case 13:
+		board[CalculateIndex(posX, posY)] = 15;
+		break;
+	case 14:
+		board[CalculateIndex(posX, posY)] = 16;
+		break;
+	case 15:
+		board[CalculateIndex(posX, posY)] = 11;
+		break;
+	case 16:
+		board[CalculateIndex(posX, posY)] = 12;
+		break;
+
+	default:
+		printf("error");
+		break;
+	}
 }
 
 
