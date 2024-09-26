@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <conio.h>
 #include "Doublebuffering.h"
-// 싹다 마크로 처리하면 클리어됨
+
 #define UP 119
 #define LEFT 97
 #define RIGHT 100
@@ -16,7 +16,10 @@
 int maxX, maxY;
 int* board;
 
-int isFirstHit = 0;
+int isFirstHit = 1;
+int mineAmount;
+
+int StartScreen();
 
 void Position(int x, int y);
 void BoardMaker(int lengthX, int lengthY);
@@ -27,12 +30,22 @@ int CheckNearby(int posX, int posY);
 void RenderBoard();
 int CheckCondition(int amount);
 void Mark(int posX, int posY);
+void Finished(int cleared);
+
+void PrintAnswer();
 
 int main()
 {
+	if (!StartScreen())
+	{
+		return;
+	}
+	
+	system("cls");
+
+
 	// 가로 세로 입력받고 보드 생성
 	int sizeX, sizeY;
-	int mineAmount;
 	printf("size : ");
 	scanf_s("%d %d", &sizeX, &sizeY);
 	printf("\nmines : ");
@@ -41,7 +54,7 @@ int main()
 	system("cls");
 	maxX = sizeX; maxY = sizeY;
 	BoardMaker(sizeX+2, sizeY+2);
-	LayMines(mineAmount);
+	//LayMines(mineAmount);
 	// 키 입력
 	char key = 0;
 
@@ -91,11 +104,14 @@ int main()
 				break;
 
 			case SELECT:
-				Select((posX+1)/2, posY);
+				Select((posX + 1) / 2, posY);
 				break;
 
 			case MARK:
-				Mark((posX+1)/2, posY);
+				if (!isFirstHit)
+				{
+					Mark((posX + 1) / 2, posY);
+				}
 				break;
 
 			default:
@@ -105,11 +121,13 @@ int main()
 			system("cls");
 			if (CheckCondition(mineAmount) == 1)
 			{
-				printf("cleared");
+				Finished(1);
 				break;
 			}
 			RenderBoard();
 		}
+		Position(0,maxY+2);
+		PrintAnswer();
 		Position(posX, posY);
 		printf("★");
 	}
@@ -118,8 +136,61 @@ int main()
 
 	return 0;
 }
-// 0 : 가장자리		1 : 보드		2 : 폭탄
 
+int StartScreen()
+{
+	printf("WASD to move\n");
+	printf("J to select, K to mark\n");
+
+	Position(2, 3);
+	printf("Start");
+	Position(2, 4);
+	printf("Quit");
+
+	int key = 0;
+	int start = 0, game = 1;
+
+	Position(0, 3);
+	printf("▶");
+
+	while (!start)
+	{
+		if (_kbhit())
+		{
+			key = _getch();
+
+			if (key == -32)
+			{
+				key = _getch();
+			}
+
+			switch (key)
+			{
+			case UP:
+				Position(0, 4);
+				printf("  ");
+				Position(0, 3);
+				printf("▶");
+				game = 1;
+				break;
+			case DOWN:
+				Position(0, 3);
+				printf("  ");
+				Position(0, 4);
+				printf("▶");
+				game = 0;
+				break;
+			case SELECT:
+				start = 1;
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+	return game;
+}
 void Position(int x, int y)
 {
 	// X와 Y축을 설정하는 구조체
@@ -138,7 +209,6 @@ int CalculateIndex(int x, int y)
 void BoardMaker(int lengthX, int lengthY)
 {
 	//이동 범위는 1 ~ length-2
-
 	board = malloc(sizeof(int) * lengthX * lengthY);
 
 	if (board != NULL)
@@ -181,41 +251,59 @@ void LayMines(int amount)
 
 	for (int i = 0; i < amount; i++)
 	{
-		int num = rand() % (maxX+2 * maxY+2);
+		int num = rand() % ((maxX + 2) * (maxY + 2));
 
 		while (board[num] != 11)
 		{
-			num = rand() % (maxX+2 * maxY+2);
+			num = rand() % ((maxX + 2) * (maxY + 2));
 		}
 		board[num] = 12;
 	}
 }
-
 void Select(int posX, int posY)
 {
 	int nearBombs;
 	switch (board[CalculateIndex(posX, posY)])
 	{
 	case 11:
+		if (isFirstHit)
+		{
+			board[CalculateIndex(posX, posY)] = 12;
+			LayMines(mineAmount);
+			isFirstHit = 0;
+			board[CalculateIndex(posX, posY)] = 11;
+		}
 		nearBombs = CheckNearby(posX, posY);
 		printf("%d", nearBombs);
 		board[CalculateIndex(posX, posY)] = nearBombs;
+		if (nearBombs == 0)
+		{
+			for (int j = -1; j <= 1; j++)
+			{
+				for (int i = -1; i <= 1; i++)
+				{
+					Select(posX + i, posY + j);
+				}
+			}
+		}
 		break;
 	case 12:
 		system("cls");
-		printf("gameOver");
+		Finished(0);
 		break;
 	}
 }
-
 int CheckNearby(int posX, int posY)
 {
 	int count = 0;
 	for (int j = -1; j <= 1; j++)
 	{
-		for (int i = - 1; i <= 1; i++)
+		for (int i = -1; i <= 1; i++)
 		{
-			if (board[CalculateIndex(posX + i, posY + j)] == 12)
+			int value = board[CalculateIndex(posX + i, posY + j)];
+			if (value == 12 ||
+				value == 14 ||
+				value == 16)
 			{
 				count++;
 			}
@@ -223,7 +311,6 @@ int CheckNearby(int posX, int posY)
 	}
 	return count;
 }
-
 void RenderBoard()
 {
 	Position(0, 0);
@@ -251,28 +338,18 @@ void RenderBoard()
 				case 16:
 					printf("? ");
 					break;
+				case 0:
+					printf("  ");
+					break;
 				default:
 					printf("%d ", value);
 					break;
-				}/*
-				if (value == 10)
-				{
-					printf("■ ");
 				}
-				else if(value == 11 || value == 12)
-				{
-					printf("□ ");
-				}
-				else
-				{
-					printf("%d ", value);
-				}*/
 			}
 			printf("\n");
 		}
 	}
 }
-
 int CheckCondition(int amount)
 {
 	int flag = 0;
@@ -280,7 +357,9 @@ int CheckCondition(int amount)
 	{
 		for (int i = 0; i < maxX+2; i++)
 		{
-			if (board[CalculateIndex(i, j)] == 11)
+			if (board[CalculateIndex(i, j)] == 11 ||
+				board[CalculateIndex(i, j)] == 13 || 
+				board[CalculateIndex(i, j)] == 15)
 			{
 				return 0;
 			}
@@ -288,7 +367,6 @@ int CheckCondition(int amount)
 	}
 	return 1;
 }
-
 void Mark(int posX, int posY)
 {
 	switch (board[CalculateIndex(posX, posY)])
@@ -318,6 +396,22 @@ void Mark(int posX, int posY)
 	}
 }
 
+void Finished(int cleared)
+{
+	if (cleared)
+	{
+		printf("CONGRATULATIONS!");
+	}
+	else
+	{
+		printf("Failed..");
+	}
+
+	Position(2, 4);
+	printf("Restart");
+	Position(2, 5);
+	printf("Quit");
+}
 
 /*
 	1. 시작과 끝
@@ -341,3 +435,15 @@ void Mark(int posX, int posY)
 
 
 */
+
+void PrintAnswer()
+{
+	for (int j = 0; j < maxY+2; j++)
+	{
+		for (int i = 0; i < maxX+2; i++)
+		{
+			printf("%d ",board[CalculateIndex(i, j)]);
+		}
+		printf("\n");
+	}
+}
