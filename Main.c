@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <Windows.h>
+#include <windows.h>
 #include <conio.h>
 #include "Doublebuffering.h"
 
@@ -14,13 +14,19 @@
 #define MARK 107
 
 int maxX, maxY;
-int* board;
+char* board;
 int mineAmount;
 
 int isFirstHit = 1;
 int play = 1;
 int failed = 0;
 
+void SetConsoleSize(int width, int height) 
+{
+	char command[50];
+	snprintf(command, sizeof(command), "mode con: cols=%d lines=%d", width, height);
+	system(command);
+}
 int StartScreen();
 
 void Position(int x, int y);
@@ -29,6 +35,7 @@ int CalculateIndex(int x, int y);
 void LayMines(int amount);
 void Select(int posX, int posY);
 int CheckNearby(int posX, int posY);
+void ShowRemainingMines();
 void RenderBoard();
 int CheckCondition(int amount);
 void Mark(int posX, int posY);
@@ -39,6 +46,8 @@ void PrintAnswer();
 
 int main()
 {
+	SetConsoleSize(50, 25);
+
 	if (!StartScreen())
 	{
 		return;
@@ -49,14 +58,17 @@ int main()
 		// 가로 세로 입력받고 보드 생성
 		int sizeX, sizeY;
 		Position(0, 0);
-		printf("size : ");
-		scanf_s("%d %d", &sizeX, &sizeY);
+		printf("Length : ");
+		scanf_s("%d", &sizeX);
+		printf("\nWidth : ");
+		scanf_s("%d", &sizeY);
 		printf("\nmines : ");
 		scanf_s("%d", &mineAmount);
 
 		system("cls");
-		maxX = sizeX; maxY = sizeY;
+		maxX = sizeX; maxY = sizeY;\
 		BoardMaker(sizeX+2, sizeY+2);
+		RenderBoard();
 
 		// 키 입력
 		char key = 0;
@@ -64,7 +76,6 @@ int main()
 		int posX = 1, posY = 1;
 
 		Position(posX, posY);
-		
 
 		while (1)
 		{
@@ -134,6 +145,7 @@ int main()
 					break;
 				}
 				RenderBoard();
+				ShowRemainingMines();
 			}
 			Position(0, maxY + 2);
 			PrintAnswer();
@@ -320,6 +332,23 @@ int CheckNearby(int posX, int posY)
 	}
 	return count;
 }
+void ShowRemainingMines()
+{
+	int count = 0;
+	for (int j = 0; j < maxY+2; j++)
+	{
+		for (int i = 0; i < maxX+2; i++)
+		{
+			int value = board[CalculateIndex(i, j)];
+			if (value == 13 || value == 14)
+			{
+				count++;
+			}
+		}
+	}
+	Position((maxX+2)*2, 0);
+	printf("Mines : %d", mineAmount - count);
+}
 void RenderBoard()
 {
 	Position(0, 0);
@@ -348,7 +377,7 @@ void RenderBoard()
 					break;
 				case 15:
 				case 16:
-					Textcolor(15);
+					Textcolor(8);
 					printf("? ");
 					break;
 				case 0:
@@ -417,7 +446,7 @@ int Finished(int cleared)
 		for (int i = 0; i < maxX + 2; i++)
 		{
 			int value = board[CalculateIndex(i, j)];
-			switch(value){
+			switch (value) {
 			case 10:
 				Textcolor(9);
 				printf("■ ");
@@ -428,7 +457,7 @@ int Finished(int cleared)
 				printf("  ");
 				break;
 			case 13:
-				TextColor(12);
+				Textcolor(12);
 				printf("X ");
 				break;
 			case 12:
@@ -445,6 +474,10 @@ int Finished(int cleared)
 		}
 		printf("\n");
 	}
+
+	Position(0, maxY + 4);
+	Textcolor(1);
+	printf("Press any key to Continue..");
 
 	_getch();
 
@@ -469,8 +502,8 @@ int Finished(int cleared)
 	Position(2, 5);
 	printf("Quit");
 
-	int key = 0;
 	int selected = 0, game = 1;
+	int key;
 
 	Position(0, 4);
 	printf("▶");
@@ -530,3 +563,6 @@ void Textcolor(int colorNum)
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), colorNum);
 }
+
+
+//파스칼스네이크?
