@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Doublebuffering.c" />
     <ClCompile Include="Main.c" />
+    <ClCompile Include="test.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Doublebuffering.h" />
