@@ -127,8 +127,8 @@ int main()
 				case SELECT:
 					Select((posX + 1) / 2, posY);
 					//릴리즈때 없앨 것ㅡㅡㅡㅡㅡㅡㅡ
-					Position(0, maxY + 2);
-					PrintAnswer();
+					//Position(0, maxY + 2);
+					//PrintAnswer();
 					//ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
 					break;
 
@@ -154,14 +154,13 @@ int main()
 					break;
 				}
 				RenderBoard();
-				RenderChanged((posX + 1) / 2, posY);
 				ShowRemainingMines();
+				Position(priorX, priorY);
+				printf(" ");
+				Position(posX, posY);
+				printf("▷");
 			}
 
-			Position(priorX, priorY);
-			printf(" ");
-			Position(posX, posY);
-			printf("▷");
 		}
 		free(board);
 	}
@@ -343,12 +342,6 @@ void LayMines(int amount)
 		board[num] = 12;
 	}
 }
-void LayMinesForTreasure(int amount)
-{
-	srand((unsigned int)time(NULL));
-
-
-}
 void Select(int posX, int posY)
 {
 	int nearBombs = 0;
@@ -499,39 +492,6 @@ void RenderBoard()
 			}
 			printf("\n");
 		}
-	}
-}
-void RenderChanged(int x, int y)
-{
-	int value = board[CalculateIndex(x, y)];
-	switch (value)
-	{
-	case 10:
-		Textcolor(9);
-		printf("■ ");
-		break;
-	case 11:
-	case 12:
-		Textcolor(7);
-		printf("□ ");
-		break;
-	case 13:
-	case 14:
-		Textcolor(12);
-		printf("▣ ");
-		break;
-	case 15:
-	case 16:
-		Textcolor(8);
-		printf("? ");
-		break;
-	case 0:
-		printf("  ");
-		break;
-	default:
-		Textcolor(15);
-		printf("%d ", value);
-		break;
 	}
 }
 int CheckCondition(int amount)
@@ -711,7 +671,6 @@ void Textcolor(int colorNum)
 	커서 위치 이동
 
 쓰인 알고리즘?
-	보물찾기 모드-
 */
 
 //파스칼스네이크?
