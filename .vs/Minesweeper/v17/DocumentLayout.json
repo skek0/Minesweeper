@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\User A\\Desktop\\Minesweeper\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{89046C3D-9DC6-45B9-BC8F-2B689A55EFF3}|Minesweeper.vcxproj|C:\\Users\\User A\\Desktop\\Minesweeper\\Main_win10.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{89046C3D-9DC6-45B9-BC8F-2B689A55EFF3}|Minesweeper.vcxproj|solutionrelative:Main_win10.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{89046C3D-9DC6-45B9-BC8F-2B689A55EFF3}|Minesweeper.vcxproj|C:\\Users\\User A\\Desktop\\Minesweeper\\Main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{89046C3D-9DC6-45B9-BC8F-2B689A55EFF3}|Minesweeper.vcxproj|solutionrelative:Main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
@@ -18,17 +22,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Main.c",
               "DocumentMoniker": "C:\\Users\\User A\\Desktop\\Minesweeper\\Main.c",
               "RelativeDocumentMoniker": "Main.c",
               "ToolTip": "C:\\Users\\User A\\Desktop\\Minesweeper\\Main.c",
               "RelativeToolTip": "Main.c",
-              "ViewState": "AQIAAJAAAAAAAAAAAAAAAJsAAAASAAAA",
+              "ViewState": "AQIAAO4BAAAAAAAAAAAcwOsBAAAGAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2024-09-24T11:41:19.153Z",
               "IsPinned": true,
@@ -36,7 +40,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "Main_win10.c",
+              "DocumentMoniker": "C:\\Users\\User A\\Desktop\\Minesweeper\\Main_win10.c",
+              "RelativeDocumentMoniker": "Main_win10.c",
+              "ToolTip": "C:\\Users\\User A\\Desktop\\Minesweeper\\Main_win10.c",
+              "RelativeToolTip": "Main_win10.c",
+              "ViewState": "AQIAAI0CAAAAAAAAAAAAAKACAAAbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2024-10-08T11:16:57.946Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "test.c",
               "DocumentMoniker": "C:\\Users\\User A\\Desktop\\Minesweeper\\test.c",
               "RelativeDocumentMoniker": "test.c",
